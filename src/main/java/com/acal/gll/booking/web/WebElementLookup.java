@@ -3,6 +3,8 @@ package com.acal.gll.booking.web;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jayway.awaitility.core.ConditionTimeoutException;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.springframework.util.CollectionUtils;
@@ -14,6 +16,8 @@ import java.util.concurrent.Callable;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.core.IsNull.notNullValue;
+
 
 public class WebElementLookup {
 
@@ -23,7 +27,7 @@ public class WebElementLookup {
     private final Map<String, String> attributes;
     private final List<String> cssClasses;
     private final int timeout;
-    private boolean withText = false;
+    private String withText;
     private Boolean visibility;
     private Boolean selected;
 
@@ -33,14 +37,15 @@ public class WebElementLookup {
         this.attributes = Maps.newHashMap();
         this.cssClasses = Lists.newArrayList();
         this.timeout = timeout;
+        this.visibility = true;
     }
 
     public WebElementLookup(final By selector) {
         this(selector, DEFAULT_TIMEOUT);
     }
 
-    public WebElementLookup withText() {
-        withText = true;
+    public WebElementLookup withText(final String regex) {
+        withText = regex;
         return this;
     }
 
@@ -69,25 +74,24 @@ public class WebElementLookup {
         return this;
     }
 
-    public boolean contains(final BrowserDriver browserDriver) {
+    public WebElement element(final BrowserDriver browserDriver) {
         try {
-            await().atMost(timeout, SECONDS).until(matches(browserDriver));
-            return true;
+            return await().atMost(timeout, SECONDS).until(testFind(browserDriver), notNullValue());
         } catch (final ConditionTimeoutException cte) {
-            return false;
+            return null;
         }
     }
 
-    private Callable<Boolean> matches(final BrowserDriver browserDriver) {
-        return new Callable<Boolean>() {
+    private Callable<WebElement> testFind(final BrowserDriver browserDriver) {
+        return new Callable<WebElement>() {
             @Override
-            public Boolean call() throws Exception {
+            public WebElement call() throws Exception {
                 for (final WebElement webElement : browserDriver.findPageElements(selector)) {
                     if (matches(webElement)) {
-                        return true;
+                        return webElement;
                     }
                 }
-                return false;
+                return null;
             }
         };
     }
@@ -96,7 +100,7 @@ public class WebElementLookup {
         if (webElement == null) {
             return false;
         }
-        if (withText && !StringUtils.hasText(webElement.getText())) {
+        if (!matchText(webElement)) {
             return false;
         }
         if (!matchVisibility(webElement)) {
@@ -113,6 +117,14 @@ public class WebElementLookup {
         }
         if (!matchAttributes(webElement)) {
             return false;
+        }
+        return true;
+    }
+
+    private boolean matchText(final WebElement webElement) {
+        if (StringUtils.hasText(withText)) {
+            final String text = StringUtils.hasText(webElement.getText()) ? webElement.getText() : "";
+            return text.matches(withText);
         }
         return true;
     }
@@ -168,13 +180,14 @@ public class WebElementLookup {
         return true;
     }
 
-    public WebElement element(final BrowserDriver browserDriver) {
-        try {
-            await().atMost(timeout, SECONDS).until(matches(browserDriver));
-            return browserDriver.findPageElement(selector);
-        } catch (final ConditionTimeoutException cte) {
-            return null;
-        }
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 }
 

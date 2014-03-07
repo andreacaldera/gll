@@ -12,7 +12,7 @@ public class GllBookingConfiguration {
 
     @Bean
     public BrowserDriver browserDriver() {
-        return BrowserFactory.phantomJs();
+        return BrowserFactory.firefox();
     }
 
 }

@@ -16,9 +16,10 @@ public class Runner {
 
         final GenericApplicationContext ctx = new AnnotationConfigApplicationContext(GllBookingConfiguration.class);
         final Booking booking = (Booking) ctx.getBean("booking");
-        booking.login();
+        booking.login(System.getProperty("gllUsername"), System.getProperty("gllPassword"));
+        booking.selectClub("Britannia");
+        booking.selectSquashTimetable();
         booking.quit();
-
     }
 
 }

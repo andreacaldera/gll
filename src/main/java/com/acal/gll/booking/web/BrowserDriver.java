@@ -35,10 +35,6 @@ public class BrowserDriver {
         return webElementLookup.element(this);
     }
 
-    public boolean containsElement(final WebElementLookup webElementLookup) {
-        return webElementLookup.contains(this);
-    }
-
     public String getSourcePage() {
         return driver.getPageSource();
     }

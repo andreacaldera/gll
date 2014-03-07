@@ -1,0 +1,512 @@
+<?xml version="1.0"?>
+
+<ruleset name="Design"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+    <description>
+        Security rules
+    </description>
+
+    <!-- from Design Ruleset -->
+    <rule name="AvoidReassigningParameters"
+          since="1.0"
+          message="Avoid reassigning parameters such as ''{0}''"
+          class="net.sourceforge.pmd.lang.java.rule.design.AvoidReassigningParametersRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/design.html#AvoidReassigningParameters">
+        <description>
+            Reassigning values to incoming parameters is not recommended.  Use temporary local variables instead.
+        </description>
+        <priority>2</priority>
+        <example>
+            <![CDATA[
+public class Foo {
+  private void foo(String bar) {
+    bar = "something else";
+  }
+}
+]]>
+        </example>
+    </rule>
+
+    <rule name="EqualsNull"
+          language="java"
+          since="1.9"
+          message="Avoid using equals() to compare against null"
+          class="net.sourceforge.pmd.lang.rule.XPathRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/design.html#EqualsNull">
+        <description>
+            Tests for null should not use the equals() method. The '==' operator should be used instead.
+        </description>
+        <priority>1</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+//PrimaryExpression
+ [
+PrimaryPrefix/Name[ends-with(@Image, 'equals')]
+or
+PrimarySuffix[ends-with(@Image, 'equals')]
+]
+[PrimarySuffix/Arguments/ArgumentList[count(Expression)=1]
+  /Expression/PrimaryExpression/PrimaryPrefix
+   /Literal/NullLiteral]
+    ]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+String x = "foo";
+
+if (x.equals(null)) { // bad form
+   	doSomething();
+	}
+
+if (x == null) { 	// preferred
+   	doSomething();
+	}
+    ]]>
+        </example>
+    </rule>
+
+    <rule name="IdempotentOperations"
+          since="2.0"
+          message="Avoid idempotent operations (like assigning a variable to itself)."
+          class="net.sourceforge.pmd.lang.java.rule.design.IdempotentOperationsRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/design.html#IdempotentOperations">
+        <description>
+            Avoid idempotent operations - they have no effect.
+        </description>
+        <priority>3</priority>
+
+        <example>
+            <![CDATA[
+public class Foo {
+ public void bar() {
+  int x = 2;
+  x = x;
+ }
+}
+      ]]>
+        </example>
+    </rule>
+    <rule name="GodClass"
+          language="java"
+          since="5.0"
+          message="Possible God class"
+          class="net.sourceforge.pmd.lang.java.rule.design.GodClassRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/design.html#GodClass">
+        <description>
+            The God Class rule detects the God Class design flaw using metrics. God classes do too many things,
+            are very big and overly complex. They should be split apart to be more object-oriented.
+            The rule uses the detection strategy described in "Object-Oriented Metrics in Practice".
+            The violations are reported against the entire class. See also the references:
+            Michele Lanza and Radu Marinescu. Object-Oriented Metrics in Practice:
+            Using Software Metrics to Characterize, Evaluate, and Improve the Design
+            of Object-Oriented Systems. Springer, Berlin, 1 edition, October 2006. Page 80.
+        </description>
+        <priority>3</priority>
+    </rule>
+
+    <!-- From Code Size ruleset -->
+    <rule 	name="CyclomaticComplexity"
+             since="1.03"
+             message = "The {0} ''{1}'' has a Cyclomatic Complexity of {2}."
+             class="net.sourceforge.pmd.lang.java.rule.codesize.CyclomaticComplexityRule"
+             externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/codesize.html#CyclomaticComplexity">
+        <description>
+            <![CDATA[
+Complexity directly affects maintenance costs is determined by the number of decision points in a method
+plus one for the method entry.  The decision points include 'if', 'while', 'for', and 'case labels' calls.
+Generally, numbers ranging from 1-4 denote low complexity, 5-7 denote moderate complexity, 8-10 denote
+high complexity, and 11+ is very high complexity.
+		]]>
+        </description>
+        <priority>3</priority>
+        <example>
+            <![CDATA[
+public class Foo {		// This has a Cyclomatic Complexity = 12
+1   public void example()  {
+2       if (a == b)  {
+3           if (a1 == b1) {
+                fiddle();
+4           } else if a2 == b2) {
+                fiddle();
+            }  else {
+                fiddle();
+            }
+5       } else if (c == d) {
+6           while (c == d) {
+                fiddle();
+            }
+7        } else if (e == f) {
+8           for (int n = 0; n < h; n++) {
+                fiddle();
+            }
+        } else{
+            switch (z) {
+9               case 1:
+                    fiddle();
+                    break;
+10              case 2:
+                    fiddle();
+                    break;
+11              case 3:
+                    fiddle();
+                    break;
+12              default:
+                    fiddle();
+                    break;
+            }
+        }
+    }
+}
+]]>
+        </example>
+    </rule>
+
+    <!-- From controversial ruleset -->
+    <rule
+            name="AvoidUsingNativeCode"
+            language="java"
+            since="4.1"
+            message="The use of native code is not recommended."
+            class="net.sourceforge.pmd.lang.rule.XPathRule"
+            externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/controversial.html#AvoidUsingNativeCode">
+        <description>
+            <![CDATA[
+Unnecessary reliance on Java Native Interface (JNI) calls directly reduces application portability
+and increases the maintenance burden.
+            ]]>
+        </description>
+        <priority>2</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+                        //Name[starts-with(@Image,'System.loadLibrary')]
+                    ]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+public class SomeJNIClass {
+
+     public SomeJNIClass() {
+         System.loadLibrary("nativelib");
+     }
+
+     static {
+         System.loadLibrary("nativelib");
+         }
+
+     public void invalidCallsInMethod() throws SecurityException, NoSuchMethodException {
+         System.loadLibrary("nativelib");
+     }
+}
+            ]]>
+        </example>
+    </rule>
+
+    <!-- from empty ruleset -->
+
+    <rule name="EmptyCatchBlock"
+          language="java"
+          since="0.1"
+          message="Avoid empty catch blocks"
+          class="net.sourceforge.pmd.lang.rule.XPathRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/empty.html#EmptyCatchBlock">
+        <description>
+            Empty Catch Block finds instances where an exception is caught, but nothing is done.
+            In most circumstances, this swallows an exception which should either be acted on
+            or reported.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+//CatchStatement
+ [count(Block/BlockStatement) = 0 and ($allowCommentedBlocks != 'true' or Block/@containsComment = 'false')]
+ [FormalParameter/Type/ReferenceType
+   /ClassOrInterfaceType[@Image != 'InterruptedException' and @Image != 'CloneNotSupportedException']
+ ]
+ ]]>
+                </value>
+            </property>
+            <property name="allowCommentedBlocks" type="Boolean" description="Empty blocks containing comments will be skipped" value="false"/>
+        </properties>
+        <example>
+            <![CDATA[
+public void doSomething() {
+  try {
+    FileInputStream fis = new FileInputStream("/tmp/bugger");
+  } catch (IOException ioe) {
+      // not good
+  }
+}
+ ]]>
+        </example>
+    </rule>
+
+    <!-- from J2EE ruleset -->
+
+    <rule
+            name="DoNotUseThreads"
+            language="java"
+            since="4.1"
+            class="net.sourceforge.pmd.lang.rule.XPathRule"
+            message="To be compliant to J2EE, a webapp should not use any thread."
+            externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/j2ee.html#DoNotUseThreads">
+        <description>
+            <![CDATA[
+The J2EE specification explicitly forbids the use of threads.
+            ]]>
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+                        //ClassOrInterfaceType[@Image = 'Thread' or @Image = 'Runnable']
+                    ]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+            // This is not allowed
+public class UsingThread extends Thread {
+
+ }
+	// Neither this,
+public class OtherThread implements Runnable {
+	// Nor this ...
+	public void methode() {
+			Runnable thread = new Thread(); thread.run();
+	}
+}
+				]]>
+        </example>
+    </rule>
+
+    <!-- from Jakarta Commons Logging ruleset -->
+
+    <rule name="GuardDebugLogging"
+          language="Java"
+          since="4.3"
+          message="debug logging that involves string concatenation should be guarded with isDebugEnabled() checks"
+          class="net.sourceforge.pmd.lang.rule.XPathRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/logging-jakarta-commons.html#GuardDebugLogging">
+        <description>
+            When log messages are composed by concatenating strings, the whole section should be guarded
+            by a isDebugEnabled() check to avoid performance and memory issues.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+                //PrimaryPrefix[ends-with(Name/@Image, '.debug') and count(../descendant::AdditiveExpression) > 0 and count(ancestor::IfStatement/Expression/descendant::PrimaryExpression[ends-with(descendant::PrimaryPrefix/Name/@Image, 'isDebugEnabled')]) = 0]
+            ]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+public class Test {
+    private static final Log __log = LogFactory.getLog(Test.class);
+    public void test() {
+        // okay:
+        __log.debug("log something");
+
+        // okay:
+        __log.debug("log something with exception", e);
+
+        // bad:
+        __log.debug("log something" + " and " + "concat strings");
+
+        // bad:
+        __log.debug("log something" + " and " + "concat strings", e);
+
+        // good:
+        if (__log.isDebugEnabled()) {
+        __log.debug("bla" + "",e );
+        }
+    }
+}
+            ]]>
+        </example>
+    </rule>
+
+    <!-- from Java Logging ruleset -->
+
+    <rule  name="AvoidPrintStackTrace"
+           language="java"
+           since="3.2"
+           message="Avoid printStackTrace(); use a logger call instead."
+           class="net.sourceforge.pmd.lang.rule.XPathRule"
+           externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/logging-java.html#AvoidPrintStackTrace">
+        <description>
+            Avoid printStackTrace(); use a logger call instead.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+//PrimaryExpression
+ [PrimaryPrefix/Name[contains(@Image,'printStackTrace')]]
+ [PrimarySuffix[not(boolean(Arguments/ArgumentList/Expression))]]
+]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+class Foo {
+  void bar() {
+    try {
+     // do something
+    } catch (Exception e) {
+     e.printStackTrace();
+     }
+   }
+}
+]]>
+        </example>
+    </rule>
+
+    <!-- from Strict Exceptions ruleset -->
+
+    <rule name="AvoidCatchingNPE"
+          language="java"
+          since="1.8"
+          message="Avoid catching NullPointerException; consider removing the cause of the NPE."
+          class="net.sourceforge.pmd.lang.rule.XPathRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/strictexception.html#AvoidCatchingNPE">
+        <description>
+            Code should never throw NullPointerExceptions under normal circumstances.  A catch block may hide the
+            original error, causing other, more subtle problems later on.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+//CatchStatement/FormalParameter/Type
+ /ReferenceType/ClassOrInterfaceType[@Image='NullPointerException']
+ ]]>
+                </value>
+            </property>
+        </properties>
+        <example>  <![CDATA[
+public class Foo {
+  void bar() {
+    try {
+      // do something
+      }  catch (NullPointerException npe) {
+    }
+  }
+}
+]]>
+        </example>
+    </rule>
+
+    <!-- from String and StringBuffer ruleset -->
+
+    <rule name="UseStringBufferLength"
+          since="3.4"
+          message="This is an inefficient use of StringBuffer.toString; call StringBuffer.length instead."
+          class="net.sourceforge.pmd.lang.java.rule.strings.UseStringBufferLengthRule"
+          externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/strings.html#UseStringBufferLength">
+        <description>
+            Use StringBuffer.length() to determine StringBuffer length rather than using StringBuffer.toString().equals("")
+            or StringBuffer.toString().length() == ...
+        </description>
+        <priority>3</priority>
+        <example>
+            <![CDATA[
+StringBuffer sb = new StringBuffer();
+
+if (sb.toString().equals("")) {}	    // inefficient
+
+if (sb.length() == 0) {}	    		// preferred
+  ]]>
+        </example>
+    </rule>
+
+    <rule   name="UseEqualsToCompareStrings"
+            language="java"
+            since="4.1"
+            message="Use equals() to compare strings instead of ''=='' or ''!=''"
+            class="net.sourceforge.pmd.lang.rule.XPathRule"
+            externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/strings.html#UseEqualsToCompareStrings">
+        <description>
+            Using '==' or '!=' to compare strings only works if intern version is used on both sides.
+            Use the equals() method instead.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+//EqualityExpression/PrimaryExpression
+[(PrimaryPrefix/Literal
+   [starts-with(@Image, '"')]
+   [ends-with(@Image, '"')]
+and count(PrimarySuffix) = 0)]
+]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+public boolean test(String s) {
+    if (s == "one") return true; 		// unreliable
+    if ("two".equals(s)) return true; 	// better
+    return false;
+}
+]]>
+        </example>
+    </rule>
+
+    <rule   name="AvoidStringBufferField"
+            language="java"
+            since="4.2"
+            message="StringBuffers can grow quite a lot, and so may become a source of memory leak (if the owning class has a long life time)."
+            class="net.sourceforge.pmd.lang.rule.XPathRule"
+            externalInfoUrl="http://pmd.sourceforge.net/pmd-5.0.2/rules/java/strings.html#AvoidStringBufferField">
+        <description>
+            <![CDATA[
+StringBuffers/StringBuilders can grow considerably, and so may become a source of memory leaks
+if held within objects with long lifetimes.
+		]]>
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+//FieldDeclaration/Type/ReferenceType/ClassOrInterfaceType[@Image = 'StringBuffer' or @Image = 'StringBuilder']
+]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+public class Foo {
+	private StringBuffer buffer;	// potential memory leak as an instance variable;
+}
+]]>
+        </example>
+    </rule>
+
+    <!-- From Basic JSP -->
+
+
+</ruleset>
