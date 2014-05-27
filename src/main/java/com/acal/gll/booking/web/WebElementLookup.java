@@ -59,8 +59,8 @@ public class WebElementLookup {
         return this;
     }
 
-    public WebElementLookup withCssClass(final String cssClass) {
-        cssClasses.add(cssClass);
+    public WebElementLookup withCssClass(final String... cssClass) {
+        cssClasses.addAll(Lists.newArrayList(cssClass));
         return this;
     }
 
@@ -189,5 +189,6 @@ public class WebElementLookup {
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+
 }
 

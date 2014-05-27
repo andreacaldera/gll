@@ -35,6 +35,10 @@ public class BrowserDriver {
         return webElementLookup.element(this);
     }
 
+    public List<WebElement> elements(By locator) {
+        return driver.findElements(locator);
+    }
+
     public String getSourcePage() {
         return driver.getPageSource();
     }

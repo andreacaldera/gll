@@ -6,6 +6,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -29,6 +30,9 @@ public class Runner {
         booking.login(r.username, r.password);
         booking.selectClub("Britannia");
         booking.selectSquashTimetable();
+        final DateTime slotDateTime = new DateTime().withYear(2014).withMonthOfYear(5).withDayOfMonth(31).withHourOfDay(11).withMinuteOfHour(15);
+        booking.selectSlot(slotDateTime.toDate());
+        booking.test();
         booking.quit();
     }
 
